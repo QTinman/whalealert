@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x -pthread -std=c++14 -lcurl ")
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check https://doc.qt.io/qt/deployment-android.html for more information.
@@ -37,6 +38,10 @@ set(PROJECT_SOURCES
         settings.ui
         settings.cpp
         resources.qrc
+        CurlEasy.cpp
+        CurlEasy.h
+        CurlMulti.cpp
+        CurlMulti.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

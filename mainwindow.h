@@ -4,17 +4,15 @@
 #include <QMainWindow>
 #include <QtCore>
 #include <QtGui>
-#include <QtSql/QSqlTableModel>
-#include <QtSql/QSql>
-#include <QtSql/QSqlQuery>
-#include <QtSql/QSqlError>
-#include <QtSql/QSqlDatabase>
 
 extern QString appgroup;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
+class QFile;
+class CurlEasy;
 QT_END_NAMESPACE
+
 
 class MainWindow : public QMainWindow
 {
@@ -24,17 +22,22 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     QJsonArray ReadJson(const QString &path);
-    void GetJson();
+    void Calc_json();
     void process_json();
     QVariant loadsettings(QString settings);
     void savesettings(QString settings, QVariant attr);
 
 private slots:
     void on_pushButton_clicked();
-
+    void onTransferProgress(qint64 downloadTotal, qint64 downloadNow, qint64 uploadTotal, qint64 uploadNow);
+    void onTransferDone();
+    void onTransferAborted();
     void on_settings_clicked();
 
 private:
     Ui::MainWindow *ui;
+    void log(QString text);
+    CurlEasy *transfer = nullptr;
+    QFile *downloadFile = nullptr;
 };
 #endif // MAINWINDOW_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>368</height>
+    <height>477</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -134,24 +134,24 @@
     <item row="8" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
-       <widget class="QPushButton" name="settings">
-        <property name="text">
-         <string>Settings</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
-          <width>288</width>
+          <width>40</width>
           <height>20</height>
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="settings">
+        <property name="text">
+         <string>Settings</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButton">
@@ -161,6 +161,16 @@
        </widget>
       </item>
      </layout>
+    </item>
+    <item row="9" column="0">
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QPlainTextEdit" name="transferLog"/>
     </item>
    </layout>
   </widget>
