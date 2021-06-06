@@ -106,22 +106,10 @@ void MainWindow::on_pushButton_clicked()
     transfer->set(CURLOPT_FOLLOWLOCATION, long(1)); // Follow redirects
     transfer->set(CURLOPT_FAILONERROR, long(1)); // Do not return CURL_OK in case valid server responses reporting errors.
 
-    //ui->startStopButton->setText("Abort");
+
     log("Transfer started.");
 
     transfer->perform();
-
-
-    /*QStringList commandlist;
-    QString api_key = loadsettings("api_key").toString();
-    if (!api_key.isEmpty()) {
-        commandlist.append("https://api.whale-alert.io/v1/transactions?api_key="+api_key);
-        QProcess *myProcess = new QProcess(this);
-        myProcess->setStandardOutputFile("whale_alerts.json");
-        myProcess->start("curl",commandlist);
-        //if (myProcess->exitCode() > 0) ui->messages->setText("Error executing cURL : " + myProcess->errorString() + " Exitcode: " + QString::number(myProcess->exitCode()));
-        myProcess->waitForFinished(-1);
-    } else ui->alert->setText("API key missing, insert API key in Settings.");*/
 }
 
 
@@ -150,9 +138,7 @@ void MainWindow::process_json()
 
 void MainWindow::Calc_json()
 {
-    int inflow_crypt, inflow_usdt, outflow_crypt, outflow_usdt;
-
-
+    qlonglong inflow_crypt=0, inflow_usdt=0, outflow_crypt=0, outflow_usdt=0;
     QString q_usd_from = QLocale(QLocale::English).toString(usd_from,'F',0), q_usd_to = QLocale(QLocale::English).toString(usd_to,'F',0), q_crypt_from = QLocale(QLocale::English).toString(crypt_from,'F',0), q_crypt_to = QLocale(QLocale::English).toString(crypt_to,'F',0);
     ui->total_usdt_from->setText(q_usd_from);
     ui->tota_usdt_to->setText(q_usd_to);
@@ -162,6 +148,11 @@ void MainWindow::Calc_json()
     inflow_usdt=loadsettings("inflow_usdt").toInt();
     outflow_crypt=loadsettings("outflow_crypt").toInt();
     outflow_usdt=loadsettings("outflow_usdt").toInt();
+    inflow_crypt *= 1000000;
+    inflow_usdt *= 1000000;
+    outflow_crypt *= 1000000;
+    outflow_usdt *= 1000000;
+    //qDebug() << outflow_crypt;
     if (inflow_crypt < crypt_to) ui->alert->setText("Warning Cryptocurrency deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_crypt));
     if (inflow_usdt < usd_to) ui->alert_2->setText("Warning USDT deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_usdt));
     if (outflow_crypt < crypt_from) ui->alert_3->setText("Warning Cryptocurrency withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_crypt));
