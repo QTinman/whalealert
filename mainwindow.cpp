@@ -6,7 +6,6 @@
 #include <QtGui>
 #include <QFile>
 
-
 double usd_to, usd_from, crypt_to, crypt_from;
 int timer_minutes;
 bool timer_enable;
@@ -115,22 +114,20 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::process_json()
 {
+    crypt_to=0;usd_to=0;crypt_from=0;usd_from=0;
     QJsonArray jsonArray = ReadJson("whale_alerts.json");
     foreach (const QJsonValue & value, jsonArray) {
-
             QJsonObject transactions = value.toObject();
-            int id = transactions["id"].toInt();
-
             QJsonObject from = transactions["from"].toObject();
             QJsonObject to = transactions["to"].toObject();
             QString owner_type_from = from["owner_type"].toString();
             QString owner_type_to = to["owner_type"].toString();
             double usd = transactions["amount_usd"].toDouble();
             QString symbol = transactions["symbol"].toString();
-            if (owner_type_to == "exchange" && symbol == "usdt") usd_to+=usd;
-            if (owner_type_to != "exchange" && symbol == "usdt") usd_from+=usd;
-            if (owner_type_to == "exchange" && symbol != "usdt") crypt_to+=usd;
-            if (owner_type_to != "exchange" && symbol != "usdt") crypt_from+=usd;
+            if (owner_type_to == "exchange" && !symbol.contains("usd")) crypt_to+=usd;
+            if (owner_type_to == "exchange" && symbol.contains("usd")) usd_to+=usd;
+            if (owner_type_to != "exchange" && !symbol.contains("usd")) crypt_from+=usd;
+            if (owner_type_to != "exchange" && symbol.contains("usd")) usd_from+=usd;
             //if (owner_type_from != "exchange" && owner_type_to != "exchange") qDebug() << owner_type_from << "  " << owner_type_to;
             Calc_json();
     }
@@ -152,7 +149,6 @@ void MainWindow::Calc_json()
     inflow_usdt *= 1000000;
     outflow_crypt *= 1000000;
     outflow_usdt *= 1000000;
-    //qDebug() << outflow_crypt;
     if (inflow_crypt < crypt_to) ui->alert->setText("Warning Cryptocurrency deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_crypt));
     if (inflow_usdt < usd_to) ui->alert_2->setText("Warning USDT deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_usdt));
     if (outflow_crypt < crypt_from) ui->alert_3->setText("Warning Cryptocurrency withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_crypt));
