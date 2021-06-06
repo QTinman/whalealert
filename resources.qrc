@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/new/icon">
+        <file>w_black.png</file>
+    </qresource>
+</RCC>
