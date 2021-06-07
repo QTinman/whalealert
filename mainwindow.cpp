@@ -130,6 +130,10 @@ void MainWindow::process_json()
         double usd = transactions["amount_usd"].toDouble();
         QString symbol = transactions["symbol"].toString();
         QString transaction_type = transactions["transaction_type"].toString();
+        qint64 timestamp = transactions["timestamp"].toInt();
+        QDateTime dt;
+        dt.setSecsSinceEpoch(timestamp);
+        //qDebug() << dt << " " << timestamp;
         if (owner_type_to == "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_to+=usd;
         if (owner_type_to == "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_to+=usd;
         if (owner_type_to != "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_from+=usd;
