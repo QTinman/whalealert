@@ -10,6 +10,7 @@ double usd_to, usd_from, crypt_to, crypt_from;
 int alert1=0,alert2=0,alert3=0,alert4=0;
 int timer_minutes;
 bool timer_enable;
+QTimer *timer;
 QString appgroup="whalealert";
 
 MainWindow::MainWindow(QWidget *parent)
@@ -21,6 +22,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->alert2->clear();
     ui->alert3->clear();
     ui->alert4->clear();
+    timer = new QTimer(this);
+    setGeometry(loadsettings("position").toRect());
+    if (loadsettings("compactmode").toBool()) {
+        ui->label_5->setText("C>Ex");
+        ui->label_2->setText("$>Ex");
+        ui->label_3->setText("C<Ex");
+        ui->label->setText("$<Ex");
+    }
     transfer = new CurlEasy(this); // Parent it so it will be destroyed automatically
 
     connect(transfer, &CurlEasy::done, this, &MainWindow::onTransferDone);
@@ -29,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     timer_minutes = loadsettings("timer_minutes").toInt();
     timer_enable = loadsettings("timer_enable").toBool();
     if (timer_enable) {
-        QTimer *timer = new QTimer(this);
+        //QTimer *timer = new QTimer(this);
         if (!timer->isActive()) {
             connect(timer, SIGNAL(timeout()), this, SLOT(on_pushButton_clicked()));
             timer->start(timer_minutes*60000);
@@ -42,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    savesettings("position",this->geometry());
     delete ui;
 }
 
@@ -183,22 +193,46 @@ void MainWindow::Calc_json()
 
 void MainWindow::on_settings_clicked()
 {
+    int threshold1=loadsettings("inflow_crypt").toInt(),threshold2=loadsettings("inflow_usdt").toInt(),threshold3=loadsettings("outflow_crypt").toInt(),threshold4=loadsettings("outflow_usdt").toInt();
     Settings settingsdialog;
     settingsdialog.setModal(true);
     settingsdialog.exec();
     timer_minutes = loadsettings("timer_minutes").toInt();
     timer_enable = loadsettings("timer_enable").toBool();
     if (timer_enable) {
-        QTimer *timer = new QTimer(this);
+        //QTimer *timer = new QTimer(this);
         if (!timer->isActive()) {
             connect(timer, SIGNAL(timeout()), this, SLOT(on_pushButton_clicked()));
             timer->start(timer_minutes*60000);
         }
     }
-    ui->alert1->clear();
-    ui->alert2->clear();
-    ui->alert3->clear();
-    ui->alert4->clear();
+    if (threshold1 != loadsettings("inflow_crypt").toInt()){
+        crypt_to=0;
+        ui->alert1->clear();
+    }
+    if (threshold2 != loadsettings("inflow_crypt").toInt()){
+        usd_to=0;
+        ui->alert2->clear();
+    }
+    if (threshold3 != loadsettings("inflow_crypt").toInt()){
+        crypt_from=0;
+        ui->alert3->clear();
+    }
+    if (threshold4 != loadsettings("inflow_crypt").toInt()){
+        usd_from=0;
+        ui->alert4->clear();
+    }
+    if (loadsettings("compactmode").toBool()) {
+        ui->label_5->setText("C>Ex");
+        ui->label_2->setText("$>Ex");
+        ui->label_3->setText("C<Ex");
+        ui->label->setText("$<Ex");
+    } else {
+        ui->label_5->setText("Total Crypto to Exchange:");
+        ui->label_2->setText("Total USDT to Exchange:");
+        ui->label_3->setText("Total Crypto from Exchange:");
+        ui->label->setText("Total USDT from Exchange:");
+    }
 }
 
 void MainWindow::rapport()

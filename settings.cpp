@@ -15,6 +15,7 @@ Settings::Settings(QWidget *parent) :
     ui->outflow_usdt->setValue(loadsettings("outflow_usdt").toInt());
     ui->timer_minutes->setValue(loadsettings("timer_minutes").toInt());
     ui->timer_enable->setChecked(loadsettings("timer_enable").toBool());
+    ui->compactmode->setChecked(loadsettings("compactmode").toBool());
 }
 
 Settings::~Settings()
@@ -51,4 +52,5 @@ void Settings::on_buttonBox_accepted()
     savesettings("outflow_usdt",ui->outflow_usdt->value());
     savesettings("timer_minutes",ui->timer_minutes->value());
     savesettings("timer_enable",ui->timer_enable->isChecked());
+    savesettings("compactmode",ui->compactmode->isChecked());
 }
