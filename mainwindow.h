@@ -26,6 +26,7 @@ public:
     void process_json();
     QVariant loadsettings(QString settings);
     void savesettings(QString settings, QVariant attr);
+    void rapport();
 
 private slots:
     void on_pushButton_clicked();

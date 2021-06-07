@@ -7,6 +7,7 @@
 #include <QFile>
 
 double usd_to, usd_from, crypt_to, crypt_from;
+int alert1=0,alert2=0,alert3=0,alert4=0;
 int timer_minutes;
 bool timer_enable;
 QString appgroup="whalealert";
@@ -16,6 +17,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->alert1->clear();
+    ui->alert2->clear();
+    ui->alert3->clear();
+    ui->alert4->clear();
     transfer = new CurlEasy(this); // Parent it so it will be destroyed automatically
 
     connect(transfer, &CurlEasy::done, this, &MainWindow::onTransferDone);
@@ -117,20 +122,21 @@ void MainWindow::process_json()
     crypt_to=0;usd_to=0;crypt_from=0;usd_from=0;
     QJsonArray jsonArray = ReadJson("whale_alerts.json");
     foreach (const QJsonValue & value, jsonArray) {
-            QJsonObject transactions = value.toObject();
-            QJsonObject from = transactions["from"].toObject();
-            QJsonObject to = transactions["to"].toObject();
-            QString owner_type_from = from["owner_type"].toString();
-            QString owner_type_to = to["owner_type"].toString();
-            double usd = transactions["amount_usd"].toDouble();
-            QString symbol = transactions["symbol"].toString();
-            if (owner_type_to == "exchange" && !symbol.contains("usd")) crypt_to+=usd;
-            if (owner_type_to == "exchange" && symbol.contains("usd")) usd_to+=usd;
-            if (owner_type_to != "exchange" && !symbol.contains("usd")) crypt_from+=usd;
-            if (owner_type_to != "exchange" && symbol.contains("usd")) usd_from+=usd;
-            //if (owner_type_from != "exchange" && owner_type_to != "exchange") qDebug() << owner_type_from << "  " << owner_type_to;
-            Calc_json();
+        QJsonObject transactions = value.toObject();
+        QJsonObject from = transactions["from"].toObject();
+        QJsonObject to = transactions["to"].toObject();
+        QString owner_type_from = from["owner_type"].toString();
+        QString owner_type_to = to["owner_type"].toString();
+        double usd = transactions["amount_usd"].toDouble();
+        QString symbol = transactions["symbol"].toString();
+        QString transaction_type = transactions["transaction_type"].toString();
+        if (owner_type_to == "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_to+=usd;
+        if (owner_type_to == "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_to+=usd;
+        if (owner_type_to != "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_from+=usd;
+        if (owner_type_to != "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_from+=usd;
+        //if (owner_type_from != "exchange" && owner_type_to != "exchange") qDebug() << owner_type_from << "  " << owner_type_to;
     }
+    Calc_json();
 }
 
 void MainWindow::Calc_json()
@@ -149,17 +155,32 @@ void MainWindow::Calc_json()
     inflow_usdt *= 1000000;
     outflow_crypt *= 1000000;
     outflow_usdt *= 1000000;
-    if (inflow_crypt < crypt_to) ui->alert->setText("Warning Cryptocurrency deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_crypt));
-    if (inflow_usdt < usd_to) ui->alert_2->setText("Warning USDT deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_usdt));
-    if (outflow_crypt < crypt_from) ui->alert_3->setText("Warning Cryptocurrency withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_crypt));
-    if (outflow_usdt < usd_from) ui->alert_4->setText("Warning USDT withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_usdt));
+    if (inflow_crypt < crypt_to) {
+        //ui->alert->setText("Warning Cryptocurrency deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_crypt));
+        alert1++;
+        ui->alert1->setText("Alerts:"+QString::number(alert1));
+    }
+    if (inflow_usdt < usd_to) {
+        //ui->alert_2->setText("Warning USDT deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_usdt));
+        alert2++;
+        ui->alert2->setText("Alerts:"+QString::number(alert2));
+    }
+    if (outflow_crypt < crypt_from) {
+        //ui->alert_3->setText("Warning Cryptocurrency withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_crypt));
+        alert3++;
+        ui->alert3->setText("Alerts:"+QString::number(alert3));
+    }
+    if (outflow_usdt < usd_from) {
+        //ui->alert_4->setText("Warning USDT withdraw from exchanges exeeds "+QLocale(QLocale::English).toString(outflow_usdt));
+        alert4++;
+        ui->alert4->setText("Alerts:"+QString::number(alert4));
+    }
 }
 
 void MainWindow::on_settings_clicked()
 {
     Settings settingsdialog;
-    //QObject::connect(&settingsdialog, SIGNAL(destroyed()), this, SLOT(reload_model()));
-    settingsdialog.setModal(true); // if nomodal is needed then create pointer inputdialog *datesearch; in mainwindow.h private section, then here use inputdialog = new datesearch(this); datesearch.show();
+    settingsdialog.setModal(true);
     settingsdialog.exec();
     timer_minutes = loadsettings("timer_minutes").toInt();
     timer_enable = loadsettings("timer_enable").toBool();
@@ -170,7 +191,15 @@ void MainWindow::on_settings_clicked()
             timer->start(timer_minutes*60000);
         }
     }
+    ui->alert1->clear();
+    ui->alert2->clear();
+    ui->alert3->clear();
+    ui->alert4->clear();
+}
 
+void MainWindow::rapport()
+{
+    QFile file;
 }
 
 void MainWindow::onTransferProgress(qint64 downloadTotal, qint64 downloadNow, qint64 uploadTotal, qint64 uploadNow)
@@ -200,7 +229,7 @@ void MainWindow::onTransferDone()
         process_json();
     }
 
-    //delete downloadFile;
+    delete downloadFile;
     downloadFile = nullptr;
 
 
@@ -214,8 +243,6 @@ void MainWindow::onTransferAborted()
     downloadFile->remove();
     delete downloadFile;
     downloadFile = nullptr;
-
-   // ui->startStopButton->setText("Start");
 }
 
 void MainWindow::log(QString text)
