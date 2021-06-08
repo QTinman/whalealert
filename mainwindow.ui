@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>300</height>
+    <height>337</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QLabel" name="label_5">
           <property name="text">
@@ -48,6 +48,13 @@
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Total USDT from Exchange:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Flow between Exchanges:</string>
           </property>
          </widget>
         </item>
@@ -83,10 +90,17 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="flow_between">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QLabel" name="alert1">
           <property name="text">
@@ -115,12 +129,16 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="alert5">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
-    </item>
-    <item row="3" column="0">
-     <widget class="QPlainTextEdit" name="transferLog"/>
     </item>
     <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -159,6 +177,9 @@
        <number>24</number>
       </property>
      </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QPlainTextEdit" name="transferLog"/>
     </item>
    </layout>
   </widget>

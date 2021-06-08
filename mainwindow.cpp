@@ -6,7 +6,7 @@
 #include <QtGui>
 #include <QFile>
 
-double usd_to, usd_from, crypt_to, crypt_from;
+double usd_to, usd_from, crypt_to, crypt_from, flow_between_exc;
 int alert1=0,alert2=0,alert3=0,alert4=0;
 int timer_minutes;
 bool timer_enable;
@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->alert2->clear();
     ui->alert3->clear();
     ui->alert4->clear();
+    ui->alert5->clear();
     timer = new QTimer(this);
     setGeometry(loadsettings("position").toRect());
     if (loadsettings("compactmode").toBool()) {
@@ -29,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->label_2->setText("$>Ex");
         ui->label_3->setText("C<Ex");
         ui->label->setText("$<Ex");
+        ui->label_4->setText("Ex<>Ex");
     }
     transfer = new CurlEasy(this); // Parent it so it will be destroyed automatically
 
@@ -129,7 +131,7 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::process_json()
 {
-    crypt_to=0;usd_to=0;crypt_from=0;usd_from=0;
+    crypt_to=0;usd_to=0;crypt_from=0;usd_from=0,flow_between_exc=0;
     QJsonArray jsonArray = ReadJson("whale_alerts.json");
     foreach (const QJsonValue & value, jsonArray) {
         QJsonObject transactions = value.toObject();
@@ -148,19 +150,22 @@ void MainWindow::process_json()
         if (owner_type_to == "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_to+=usd;
         if (owner_type_to != "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_from+=usd;
         if (owner_type_to != "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_from+=usd;
-        //if (owner_type_from != "exchange" && owner_type_to != "exchange") qDebug() << owner_type_from << "  " << owner_type_to;
+        if (owner_type_from == "exchange" && owner_type_to == "exchange" && transaction_type == "transfer") flow_between_exc+=usd;
     }
     Calc_json();
 }
 
 void MainWindow::Calc_json()
 {
-    qlonglong inflow_crypt=0, inflow_usdt=0, outflow_crypt=0, outflow_usdt=0;
-    QString q_usd_from = QLocale(QLocale::English).toString(usd_from,'F',0), q_usd_to = QLocale(QLocale::English).toString(usd_to,'F',0), q_crypt_from = QLocale(QLocale::English).toString(crypt_from,'F',0), q_crypt_to = QLocale(QLocale::English).toString(crypt_to,'F',0);
+    qlonglong inflow_crypt=0, inflow_usdt=0, outflow_crypt=0, outflow_usdt=0, between_flow=0;
+    QString q_usd_from = QLocale(QLocale::English).toString(usd_from,'F',0), q_usd_to = QLocale(QLocale::English).toString(usd_to,'F',0),
+            q_crypt_from = QLocale(QLocale::English).toString(crypt_from,'F',0), q_crypt_to = QLocale(QLocale::English).toString(crypt_to,'F',0),
+            flow_between = QLocale(QLocale::English).toString(flow_between_exc,'F',0);
     ui->total_usdt_from->setText(q_usd_from);
     ui->tota_usdt_to->setText(q_usd_to);
     ui->total_crypt_to->setText(q_crypt_to);
     ui->total_crypt_from->setText(q_crypt_from);
+    ui->flow_between->setText(flow_between);
     inflow_crypt=loadsettings("inflow_crypt").toInt();
     inflow_usdt=loadsettings("inflow_usdt").toInt();
     outflow_crypt=loadsettings("outflow_crypt").toInt();
@@ -227,11 +232,13 @@ void MainWindow::on_settings_clicked()
         ui->label_2->setText("$>Ex");
         ui->label_3->setText("C<Ex");
         ui->label->setText("$<Ex");
+        ui->label_4->setText("Ex<>Ex");
     } else {
         ui->label_5->setText("Total Crypto to Exchange:");
         ui->label_2->setText("Total USDT to Exchange:");
         ui->label_3->setText("Total Crypto from Exchange:");
         ui->label->setText("Total USDT from Exchange:");
+        ui->label_4->setText("Flow between Exchanges:");
     }
 }
 
