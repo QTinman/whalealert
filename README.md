@@ -7,3 +7,7 @@ API key from whale_alert.io required.
 
 
 ![Welcome screen](https://github.com/QTinman/whalealert/blob/main/whalealert.png)
+
+
+
+![Welcome screen](https://github.com/QTinman/whalealert/blob/main/whalealert3.png)
