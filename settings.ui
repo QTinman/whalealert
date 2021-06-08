@@ -47,7 +47,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Enter USD in millions.</string>
+        <string>Alerts: enter USD in millions.</string>
        </property>
       </widget>
      </item>
