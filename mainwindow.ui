@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>337</height>
+    <height>348</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,6 +58,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Unknown to Unknown:</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -97,6 +104,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="unknow2unknow">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
       <item>
@@ -131,6 +145,13 @@
         </item>
         <item>
          <widget class="QLabel" name="alert5">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="alert6">
           <property name="text">
            <string>TextLabel</string>
           </property>
