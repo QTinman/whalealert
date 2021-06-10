@@ -239,7 +239,7 @@ void MainWindow::Calc_json()
         csv_file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
         QTextStream outStream(&csv_file);
         csv_string=QString::number(crypt_to,'F',0)+"\t"+QString::number(usd_to,'F',0)+"\t"+QString::number(crypt_from,'F',0)+"\t"+QString::number(usd_from,'F',0)+
-                "\t"+QString::number(flow_between_exc,'F',0)+"\t"+QString::number(unknown2unknown,'F',0)+"\t"+"\t"+QString::number(flow_in_daily,'F',0)+"\t"+QString::number(flow_out_daily,'F',0)+ct.toString();
+                "\t"+QString::number(flow_between_exc,'F',0)+"\t"+QString::number(unknown2unknown,'F',0)+"\t"+QString::number(flow_in_daily,'F',0)+"\t"+QString::number(flow_out_daily,'F',0)+"\t"+ct.toString();
         outStream << csv_string+"\n";
     }
     csv_file.close();
