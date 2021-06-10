@@ -4,13 +4,15 @@
 #include <QMainWindow>
 #include <QtCore>
 #include <QtGui>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
 
 extern QString appgroup;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
-class QFile;
-class CurlEasy;
 QT_END_NAMESPACE
 
 
@@ -28,17 +30,17 @@ public:
     void savesettings(QString settings, QVariant attr);
     void rapport();
 
+public slots:
+    void replyFinished (QNetworkReply *reply);
+
+
 private slots:
     void on_pushButton_clicked();
-    void onTransferProgress(qint64 downloadTotal, qint64 downloadNow, qint64 uploadTotal, qint64 uploadNow);
-    void onTransferDone();
-    void onTransferAborted();
     void on_settings_clicked();
 
 private:
     Ui::MainWindow *ui;
-    void log(QString text);
-    CurlEasy *transfer = nullptr;
-    QFile *downloadFile = nullptr;
+    QNetworkAccessManager *manager;
+
 };
 #endif // MAINWINDOW_H
