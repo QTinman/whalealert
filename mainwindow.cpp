@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->alert5->clear();
     ui->alert6->clear();
     QDate cd = QDate::currentDate();
-    dtc = QDateTime(cd, QTime(23, 59, 0));
+    dtc = QDateTime(cd, QTime(23, 59, 59));
 
     timer = new QTimer(this);
     setGeometry(loadsettings("position").toRect());
@@ -232,14 +232,14 @@ void MainWindow::Calc_json()
             header=true;
             csv_file.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream outStream(&csv_file);
-            csv_string="Crypt to Ex,USDT to Ex,Crypt from Ex,USDT from Ex,Ex to Ex,Un to Un,Time";
+            csv_string="Crypt to Ex,USDT to Ex,Crypt from Ex,USDT from Ex,Ex to Ex,Un to Un,Flow to Ex,Flow from Ex,Time";
             outStream << csv_string+"\n";
             csv_file.close();
         }
         csv_file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
         QTextStream outStream(&csv_file);
         csv_string=QString::number(crypt_to,'F',0)+"\t"+QString::number(usd_to,'F',0)+"\t"+QString::number(crypt_from,'F',0)+"\t"+QString::number(usd_from,'F',0)+
-                "\t"+QString::number(flow_between_exc,'F',0)+"\t"+QString::number(unknown2unknown,'F',0)+"\t"+ct.toString();
+                "\t"+QString::number(flow_between_exc,'F',0)+"\t"+QString::number(unknown2unknown,'F',0)+"\t"+"\t"+QString::number(flow_in_daily,'F',0)+"\t"+QString::number(flow_out_daily,'F',0)+ct.toString();
         outStream << csv_string+"\n";
     }
     csv_file.close();
