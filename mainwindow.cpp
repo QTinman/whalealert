@@ -6,7 +6,9 @@
 #include <QtGui>
 #include <QFile>
 
-double usd_to, usd_from, crypt_to, crypt_from, flow_between_exc, unknown2unknown;
+double usd_to, usd_from, crypt_to, crypt_from, flow_between_exc, unknown2unknown, flow_out_daily=0, flow_in_daily=0;
+QDateTime dtc;
+qint64 timestamp_latest=0;
 int alert1=0,alert2=0,alert3=0,alert4=0;
 int timer_minutes;
 bool timer_enable;
@@ -24,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->alert4->clear();
     ui->alert5->clear();
     ui->alert6->clear();
+    QDate cd = QDate::currentDate();
+    dtc = QDateTime(cd, QTime(23, 59, 0));
+
     timer = new QTimer(this);
     setGeometry(loadsettings("position").toRect());
     if (loadsettings("compactmode").toBool()) {
@@ -33,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
         ui->label->setText("Ex>$");
         ui->label_4->setText("Ex>Ex");
         ui->label_6->setText("Un>Un");
+        ui->label_7->setText("Df>Ex");
+        ui->label_8->setText("Ex>Df");
     }
     transfer = new CurlEasy(this); // Parent it so it will be destroyed automatically
 
@@ -138,6 +145,7 @@ void MainWindow::process_json()
 {
     crypt_to=0;usd_to=0;crypt_from=0;usd_from=0,flow_between_exc=0,unknown2unknown=0;
     QJsonArray jsonArray = ReadJson("whale_alerts.json");
+    qint64 timestamp_temp=0;
     foreach (const QJsonValue & value, jsonArray) {
         QJsonObject transactions = value.toObject();
         QJsonObject from = transactions["from"].toObject();
@@ -151,13 +159,19 @@ void MainWindow::process_json()
         QDateTime dt;
         dt.setSecsSinceEpoch(timestamp);
         //qDebug() << dt << " " << timestamp;
-        if (owner_type_from == "unknown" && owner_type_to == "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_to+=usd;
-        if (owner_type_from == "unknown" && owner_type_to == "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_to+=usd;
-        if (owner_type_from == "exchange" && owner_type_to == "unknown" && !symbol.contains("usd") && transaction_type == "transfer") crypt_from+=usd;
-        if (owner_type_from == "exchange" && owner_type_to == "unknown" && symbol.contains("usd") && transaction_type == "transfer") usd_from+=usd;
-        if (owner_type_from == "exchange" && owner_type_to == "exchange" && transaction_type == "transfer") flow_between_exc+=usd;
-        if (owner_type_from == "unknown" && owner_type_to == "unknown" && transaction_type == "transfer") unknown2unknown+=usd;
+        if (timestamp > timestamp_temp) timestamp_temp = timestamp;
+        if (timestamp > timestamp_latest) {
+            if (owner_type_from == "unknown" && owner_type_to == "exchange" && !symbol.contains("usd") && transaction_type == "transfer") crypt_to+=usd;
+            if (owner_type_from == "unknown" && owner_type_to == "exchange" && symbol.contains("usd") && transaction_type == "transfer") usd_to+=usd;
+            if (owner_type_from == "exchange" && owner_type_to == "unknown" && !symbol.contains("usd") && transaction_type == "transfer") crypt_from+=usd;
+            if (owner_type_from == "exchange" && owner_type_to == "unknown" && symbol.contains("usd") && transaction_type == "transfer") usd_from+=usd;
+            if (owner_type_from == "exchange" && owner_type_to == "exchange" && transaction_type == "transfer") flow_between_exc+=usd;
+            if (owner_type_from == "unknown" && owner_type_to == "unknown" && transaction_type == "transfer") unknown2unknown+=usd;
+        }
     }
+    timestamp_latest = timestamp_temp;
+    flow_in_daily += crypt_to+usd_to;
+    flow_out_daily += crypt_from+usd_from;
     Calc_json();
 }
 
@@ -167,16 +181,24 @@ void MainWindow::Calc_json()
     QFile csv_file;
     QDate cd = QDate::currentDate();
     QTime ct = QTime::currentTime();
+    QDateTime cdt = QDateTime::currentDateTime();
+    if (cdt > dtc) {
+        flow_in_daily = 0;
+        flow_out_daily = 0;
+    }
     QString csv_string;
     QString q_usd_from = QLocale(QLocale::English).toString(usd_from,'F',0), q_usd_to = QLocale(QLocale::English).toString(usd_to,'F',0),
             q_crypt_from = QLocale(QLocale::English).toString(crypt_from,'F',0), q_crypt_to = QLocale(QLocale::English).toString(crypt_to,'F',0),
-            flow_between = QLocale(QLocale::English).toString(flow_between_exc,'F',0), unkn2unkn = QLocale(QLocale::English).toString(unknown2unknown,'F',0);
+            flow_between = QLocale(QLocale::English).toString(flow_between_exc,'F',0), unkn2unkn = QLocale(QLocale::English).toString(unknown2unknown,'F',0),
+            q_flow_in_daily = QLocale(QLocale::English).toString(flow_in_daily,'F',0), q_flow_out_daily = QLocale(QLocale::English).toString(flow_out_daily,'F',0);
     ui->total_crypt_to->setText(q_crypt_to);
     ui->tota_usdt_to->setText(q_usd_to);
     ui->total_crypt_from->setText(q_crypt_from);
     ui->total_usdt_from->setText(q_usd_from);
     ui->flow_between->setText(flow_between);
     ui->unknow2unknow->setText(unkn2unkn);
+    ui->flow_in_daily->setText(q_flow_in_daily);
+    ui->flow_out_daily->setText(q_flow_out_daily);
     inflow_crypt=loadsettings("inflow_crypt").toInt();
     inflow_usdt=loadsettings("inflow_usdt").toInt();
     outflow_crypt=loadsettings("outflow_crypt").toInt();
@@ -210,7 +232,7 @@ void MainWindow::Calc_json()
             header=true;
             csv_file.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream outStream(&csv_file);
-            csv_string="Crypt to,USDT to,Crypt from,USDT from,Between Ex,Between Un,Time";
+            csv_string="Crypt to Ex,USDT to Ex,Crypt from Ex,USDT from Ex,Ex to Ex,Un to Un,Time";
             outStream << csv_string+"\n";
             csv_file.close();
         }
@@ -261,6 +283,8 @@ void MainWindow::on_settings_clicked()
         ui->label->setText("Ex>$");
         ui->label_4->setText("Ex>Ex");
         ui->label_6->setText("Un>Un");
+        ui->label_7->setText("Df>Ex");
+        ui->label_8->setText("Ex>Df");
     } else {
         ui->label_5->setText("Total Crypto to Exchange:");
         ui->label_2->setText("Total USDT to Exchange:");
@@ -268,6 +292,8 @@ void MainWindow::on_settings_clicked()
         ui->label->setText("Total USDT from Exchange:");
         ui->label_4->setText("Flow between Exchanges:");
         ui->label_6->setText("Unknow to Unknow");
+        ui->label_7->setText("Daily flow in:");
+        ui->label_8->setText("Daily flow out:");
     }
 }
 

@@ -16,18 +16,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x -pthread -std=c++14 -lcurl 
 # Check https://doc.qt.io/qt/deployment-android.html for more information.
 # They need to be set before the find_package( ...) calls below.
 
-#if(ANDROID)
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-#    if (ANDROID_ABI STREQUAL "armeabi-v7a")
-#        set(ANDROID_EXTRA_LIBS
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libcrypto.so
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libssl.so)
-#    endif()
-#endif()
+if(ANDROID)
+    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    include_directories(/home/john/Android/Sdk/ndk/21.2.6472646/sysroot/usr/include/)
+    if (ANDROID_ABI STREQUAL "armeabi-v7a")
+        set(ANDROID_EXTRA_LIBS
+            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libcrypto.so
+            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libssl.so)
+    endif()
+endif()
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets Sql REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
+#find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Sql REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -61,4 +62,4 @@ else()
 endif()
 
 target_link_libraries(whalealert PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(whalealert PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
+#target_link_libraries(whalealert PRIVATE Qt${QT_VERSION_MAJOR}::Sql)
