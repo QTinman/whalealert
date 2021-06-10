@@ -226,10 +226,8 @@ void MainWindow::Calc_json()
     }
     if (loadsettings("report").toBool()) {
         QString csv_filename="report_"+cd.toString()+".csv";
-        bool header=false;
         csv_file.setFileName(csv_filename);
         if (!csv_file.exists()) {
-            header=true;
             csv_file.open(QIODevice::WriteOnly | QIODevice::Text);
             QTextStream outStream(&csv_file);
             csv_string="Crypt to Ex,USDT to Ex,Crypt from Ex,USDT from Ex,Ex to Ex,Un to Un,Flow to Ex,Flow from Ex,Time";
@@ -241,6 +239,7 @@ void MainWindow::Calc_json()
         csv_string=QString::number(crypt_to,'F',0)+"\t"+QString::number(usd_to,'F',0)+"\t"+QString::number(crypt_from,'F',0)+"\t"+QString::number(usd_from,'F',0)+
                 "\t"+QString::number(flow_between_exc,'F',0)+"\t"+QString::number(unknown2unknown,'F',0)+"\t"+QString::number(flow_in_daily,'F',0)+"\t"+QString::number(flow_out_daily,'F',0)+"\t"+ct.toString();
         outStream << csv_string+"\n";
+        if (csv_file.error()) qDebug() << csv_file.errorString();
     }
     csv_file.close();
 }
