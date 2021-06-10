@@ -208,7 +208,6 @@ void MainWindow::Calc_json()
     outflow_crypt *= 1000000;
     outflow_usdt *= 1000000;
     if (inflow_crypt < crypt_to) {
-        //ui->alert->setText("Warning Cryptocurrency deposit into exchanges exeeds "+QLocale(QLocale::English).toString(inflow_crypt));
         alert1++;
         ui->alert1->setText("Alerts:"+QString::number(alert1));
     }
