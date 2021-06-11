@@ -107,7 +107,9 @@ void MainWindow::on_pushButton_clicked()
     QString api_key = loadsettings("api_key").toString();
     if (api_key.isEmpty()) ui->transferLog->appendPlainText("API key is missing, please update in settings!");
     else {
-        manager->get(QNetworkRequest(QUrl("https://api.whale-alert.io/v1/transactions?api_key="+api_key)));
+        QUrl url = QUrl(QString("https://api.whale-alert.io/v1/transactions?api_key=%1").arg(api_key));
+        QNetworkRequest request(url);
+        manager->get(request);
 
     }
 }
@@ -155,6 +157,8 @@ void MainWindow::Calc_json()
     QTime ct = QTime::currentTime();
     QDateTime cdt = QDateTime::currentDateTime();
     if (cdt > dtc) {
+        QDate cd = QDate::currentDate();
+        dtc = QDateTime(cd, QTime(23, 59, 59));
         flow_in_daily = 0;
         flow_out_daily = 0;
     }
@@ -281,6 +285,7 @@ void MainWindow::replyFinished (QNetworkReply *reply)
         //ui->transferLog->appendPlainText(reply->header(QNetworkRequest::ContentLengthHeader).toString());
         ui->transferLog->appendPlainText(reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString());
         //ui->transferLog->appendPlainText(reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString());
+        ui->transferLog->appendPlainText("OK");
 
         QFile *file = new QFile("whale_alerts.json");
         if(file->open(QFile::WriteOnly))
